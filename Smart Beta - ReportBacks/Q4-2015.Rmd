@@ -1,15 +1,17 @@
 ---
 title: "Fairtree Smart Beta - Q4-2015 Management Meeting"
-date: "09 November 2015"
 output:
-  html_document: 
+  html_document:
     highlight: null
+  pdf_document: default
+date: "09 November 2015"
 ---
 
 ----------
 
 ![](logo.png)
 
+----------
 
 ```{r eval=TRUE, echo=FALSE,  message=FALSE}
 
@@ -17,7 +19,7 @@ output:
 # Initialise
 # =================================
 
-list.of.packages <- c("readr","tidyr","dplyr","DT", "datacomb","xts","dygraphs","ggvis","lubridate","PerformanceAnalytics","xtable","ggplot2")
+list.of.packages <- c("readr","tidyr","dplyr","DT","xts","dygraphs","ggvis","lubridate","PerformanceAnalytics")
 
 
 roundfs = function(x, n) {
@@ -53,16 +55,18 @@ xts.returns<-as.xts(csv.data[,-1],order.by=dmy(csv.data[,1]))
 csv.data<-read.csv(file = "AUMTimeseries.csv",na = c("NA"))
 xts.AUM<-as.xts(csv.data[,-1],order.by=dmy(csv.data[,1]))
 
+options(DT.options = list(
+  initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+    "}")))
 
 
 ```
 
-
-----------
-
 # Performance Feedback
 
-The Smart Beta strategies are:
+The Smart Beta/Quant strategies are:
 
  * Long Only Smart Beta
  * Long Short Smart Beta
@@ -72,7 +76,6 @@ The Smart Beta strategies are:
 
 
 Performance has been strong, except for the Market Neutral strategy, which had some growing pains due to Mean Reversion implementations.
-
 
 ```{r eval=TRUE, echo=FALSE}
 
@@ -147,6 +150,7 @@ datatable(table.CalendarReturns(xts.returns[,cols[1]]),
 ----------
 
 ### CTA
+
 ```{r eval=TRUE, echo=FALSE}
 
 cols<-c(7,8)
@@ -317,11 +321,6 @@ datatable(table.CalendarReturns(xts.returns[,cols[1]]),
 ----------
  
 # Operational Issues
-
-
-
-  
-
 
 
 
