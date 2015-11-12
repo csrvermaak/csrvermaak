@@ -1,0 +1,330 @@
+---
+title: "Fairtree Smart Beta - Q4-2015 Management Meeting"
+date: "09 November 2015"
+output:
+  html_document: 
+    highlight: null
+---
+
+----------
+
+![](logo.png)
+
+
+```{r eval=TRUE, echo=FALSE,  message=FALSE}
+
+# =================================
+# Initialise
+# =================================
+
+list.of.packages <- c("readr","tidyr","dplyr","DT", "datacomb","xts","dygraphs","ggvis","lubridate","PerformanceAnalytics","xtable","ggplot2")
+
+
+roundfs = function(x, n) {
+    posneg = sign(x)
+    z = x*10^n
+    z = z + posneg*(0.5)
+    z = round(z)
+    z = z/10^n
+    z
+  }
+
+
+fairtreepal8 = c("#d15209", "#252525", "#525252", "#737373", "#969696", "#BDBDBD", "#D9D9D9", "#F0F0F0")
+
+
+# Check if installed
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+# Install if needed
+if(length(new.packages)>0) install.packages(new.packages)
+# Load for use
+for (i in seq_along(list.of.packages) )   {
+  library(list.of.packages[i],character.only = TRUE) 
+}
+
+
+
+df.ytd<-read_csv(file = "PerformanceMatrix.csv",na = c("NA"))
+
+csv.data<-read.csv(file = "ReturnTimeseries.csv",na = c("NA"))
+csv.data<-csv.data[-1,]
+xts.returns<-as.xts(csv.data[,-1],order.by=dmy(csv.data[,1]))
+
+csv.data<-read.csv(file = "AUMTimeseries.csv",na = c("NA"))
+xts.AUM<-as.xts(csv.data[,-1],order.by=dmy(csv.data[,1]))
+
+
+
+```
+
+
+----------
+
+# Performance Feedback
+
+The Smart Beta strategies are:
+
+ * Long Only Smart Beta
+ * Long Short Smart Beta
+ * Market Neutral Smart Beta
+ * CTA
+ * Divi Buy Write
+
+
+Performance has been strong, except for the Market Neutral strategy, which had some growing pains due to Mean Reversion implementations.
+
+
+```{r eval=TRUE, echo=FALSE}
+
+datatable(df.ytd, 
+          options = list(pageLength = 4), 
+          class = 'cell-border stripe hover row-border',
+          caption = 'Table 1: Performance.',
+          extensions = 'KeyTable') %>% 
+  formatPercentage(c('Oct-15','YTD 2015','2014'), 2)
+
+```
+
+----------
+
+## Performance relative to benchmarks for the Year
+
+```{r eval=TRUE, echo=FALSE}
+
+df.ytd %>% filter(grepl('Relative', .$Comparison)) %>% select(Strategy,Description,`YTD 2015`) %>% 
+      ggvis(~Strategy,~`YTD 2015`*100,fill:="#d15209") %>% layer_bars(fill.hover := "#252525")  %>% 
+      scale_numeric("y", domain = c(-4,10), nice = TRUE,label = "YTD 2015") %>%
+      add_axis("x", properties = axis_props(labels = list(angle = 70, align = "left", fontSize = 10))) 
+
+```
+
+----------
+
+## Change in External AUM
+
+AUM has grown consistently.
+
+```{r val=TRUE, echo=FALSE}
+
+dygraph(xts.AUM, main = "AUM (Millions)")  %>% 
+  dyRangeSelector() %>%
+  dySeries("Seed", label = "Seed",color="#d15209") %>%
+  dySeries("Mertech", label = "Mertech",color="#252525") %>%
+  dyOptions(stackedGraph = TRUE) 
+ 
+
+```
+
+----------
+
+## Individual Strategy Analysis
+
+
+### Divi Buy Write
+```{r eval=TRUE, echo=FALSE}
+
+cols<-c(1,2)
+Title<-"Divi Buy Write"
+
+
+charts.PerformanceSummary(xts.returns[,cols],geometric=TRUE, wealth.index=TRUE,colorset=fairtreepal8)
+
+# datatable(table.Stats(xts.returns[,cols]), 
+#           options = list(pageLength = 16), 
+#           class = 'cell-border stripe hover row-border',
+#           caption = Title,
+#           extensions = 'KeyTable')
+
+datatable(table.CalendarReturns(xts.returns[,cols[1]]),
+          options = list(pageLength = 13), 
+          class = 'cell-border stripe hover row-border',
+          caption = Title,
+          extensions = 'KeyTable')
+  
+```
+
+
+----------
+
+### CTA
+```{r eval=TRUE, echo=FALSE}
+
+cols<-c(7,8)
+Title<-"CTA"
+
+
+charts.PerformanceSummary(xts.returns[,cols],geometric=TRUE, wealth.index=TRUE,colorset=fairtreepal8)
+
+# datatable(table.Stats(xts.returns[,cols]), 
+#           options = list(pageLength = 16), 
+#           class = 'cell-border stripe hover row-border',
+#           caption = Title,
+#           extensions = 'KeyTable')
+
+datatable(table.CalendarReturns(xts.returns[,cols[1]]),
+          options = list(pageLength = 13), 
+          class = 'cell-border stripe hover row-border',
+          caption = Title,
+          extensions = 'KeyTable')
+  
+```
+
+----------
+
+### Smart Beta Long Only
+
+```{r eval=TRUE, echo=FALSE}
+
+cols<-c(3,4)
+Title<-"Smart Beta Long Only"
+
+
+charts.PerformanceSummary(xts.returns[,cols],geometric=TRUE, wealth.index=TRUE,colorset=fairtreepal8)
+
+# datatable(table.Stats(xts.returns[,cols]), 
+#           options = list(pageLength = 16), 
+#           class = 'cell-border stripe hover row-border',
+#           caption = Title,
+#           extensions = 'KeyTable')
+
+datatable(table.CalendarReturns(xts.returns[,cols[1]]),
+          options = list(pageLength = 13), 
+          class = 'cell-border stripe hover row-border',
+          caption = Title,
+          extensions = 'KeyTable')
+  
+```
+
+
+----------
+
+### Smart Beta Long Short
+
+```{r eval=TRUE, echo=FALSE}
+
+cols<-c(5,6)
+Title<-"Smart Beta Long Short"
+
+
+charts.PerformanceSummary(xts.returns[,cols],geometric=TRUE, wealth.index=TRUE,colorset=fairtreepal8)
+
+# datatable(table.Stats(xts.returns[,cols]), 
+#           options = list(pageLength = 16), 
+#           class = 'cell-border stripe hover row-border',
+#           caption = Title,
+#           extensions = 'KeyTable')
+
+datatable(table.CalendarReturns(xts.returns[,cols[1]]),
+          options = list(pageLength = 13), 
+          class = 'cell-border stripe hover row-border',
+          caption = Title,
+          extensions = 'KeyTable')
+  
+```
+
+
+----------
+
+### Smart Beta Market Neutral
+
+```{r eval=TRUE, echo=FALSE}
+
+cols<-c(9,10)
+Title<-"Smart Beta Market Neutral"
+
+
+charts.PerformanceSummary(xts.returns[,cols],geometric=TRUE, wealth.index=TRUE,colorset=fairtreepal8)
+
+# datatable(table.Stats(xts.returns[,cols]), 
+#           options = list(pageLength = 16), 
+#           class = 'cell-border stripe hover row-border',
+#           caption = Title,
+#           extensions = 'KeyTable')
+
+datatable(table.CalendarReturns(xts.returns[,cols[1]]),
+          options = list(pageLength = 13), 
+          class = 'cell-border stripe hover row-border',
+          caption = Title,
+          extensions = 'KeyTable')
+  
+```
+
+----------
+
+### Smart Beta Global
+
+```{r eval=TRUE, echo=FALSE}
+
+cols<-c(11,12)
+Title<-"Smart Beta Global"
+
+
+charts.PerformanceSummary(xts.returns[,cols],geometric=TRUE, wealth.index=TRUE,colorset=fairtreepal8)
+
+# datatable(table.Stats(xts.returns[,cols]), 
+#           options = list(pageLength = 16), 
+#           class = 'cell-border stripe hover row-border',
+#           caption = Title,
+#           extensions = 'KeyTable')
+
+datatable(table.CalendarReturns(xts.returns[,cols[1]]),
+          options = list(pageLength = 13), 
+          class = 'cell-border stripe hover row-border',
+          caption = Title,
+          extensions = 'KeyTable')
+  
+```
+
+----------
+
+# Smart Beta: Strategic Initiatives
+
+## Global Aspirations
+
+- Fairtree Global Smart Beta analysis: [See here: Global Factor Analysis](https://nicktz.shinyapps.io/GlobalFactors)
+- Mertech is a possible seed investor for Global Smart Beta unit trust
+- Diversify hedge product globally
+    + AUS
+    + NZ
+- Diversify to other asset classes
+    + Commodities
+    + FX
+    + Fixed Income
+    + Stock Indices
+
+  
+## SA Long Only
+
+* Unit trust 
+* Marketing and distribution
+
+----------
+
+# Staff Issues
+
+ * Nico appointed
+ * Research framework facilitates University internships
+ 
+----------
+ 
+# Expenses
+
+* Github: [See our Wiki](https://github.com/fairtree/production.src/wiki)
+* Shiny: [See this Golf Analysis](https://jalapic.shinyapps.io/golf])
+* Intous [Presentation Pad](http://www.takealot.com/wacom-intuos-pen-touch-medium/PLID28059565])
+* PC(s?) for interns
+
+----------
+ 
+# Operational Issues
+
+
+
+  
+
+
+
+
+
+
+
