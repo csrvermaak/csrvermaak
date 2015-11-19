@@ -32,8 +32,7 @@ roundfs = function(x, n) {
   }
 
 
-fairtreepal8 = testInheritedMethods(
-)
+fairtreepal8 = c("#d15209", "#252525", "#525252", "#737373", "#969696", "#BDBDBD", "#D9D9D9", "#F0F0F0")
 
 
 # Check if installed
